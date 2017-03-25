@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html ng-app="todoApp">
+  <head>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css" media="screen,projection">
+    <!--Import angular js  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
+    <!--Import todo.js -->
+    <script type="text/javascript" src="todo.js"></script>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+
+  <body>
+      <nav class="nav-extended">
+          <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Todo</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+              <li><a href="sass.html">Sass</a></li>
+              <li><a href="badges.html">Components</a></li>
+              <li><a href="collapsible.html">JavaScript</a></li>
+            </ul>
+            <ul class="side-nav" id="mobile-demo">
+              <li><a href="sass.html">Sass</a></li>
+              <li><a href="badges.html">Components</a></li>
+              <li><a href="collapsible.html">JavaScript</a></li>
+            </ul>
+          </div>
+          <div class="nav-content">
+            <ul class="tabs tabs-transparent">
+              <li class="tab"><a href="#test1">TO DO</a></li>
+              <li class="tab"><a class="active" href="#test2">Completed</a></li>
+            </ul>
+          </div>
+      </nav>
+
+        <div class="container" ng-controller="todoCtrl as TD">
+          <!-- Page Content goes here -->
+          <br>
+          <ul class="collapsible" data-collapsible="accordion">
+
+              <!-- add todo section -->
+              <li>
+                <div class="collapsible-header">
+                    <i class="material-icons">add_circle</i>
+                    add
+                </div>
+                <div class="collapsible-body">
+                    <span>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input placeholder="Type some text." id="first_name" type="text" class="validate" ng-model="newTodo.title">
+                                <label for="first_name">Title</label>
+                            </div>
+                            <div class="input-field col s12">
+                                <textarea id="textarea1" placeholder="Type your description." class="materialize-textarea" ng-model="newTodo.describetion"></textarea>
+                                <label for="textarea1">Textarea</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <button class="btn waves-effect waves-light" ng-click="TD.addTodo()" type="submit" name="action">Submit
+                              <i class="material-icons right">send</i>
+                            </button>
+                        </div>
+                    </span>
+                </div>
+              </li>
+
+              <!-- todo section -->
+              <li ng-repeat="todoObj in todoArray track by $index">
+                <div class="collapsible-header {{ TD.getTodoColor(todoObj.status) }}" style="max-height: 43px;">
+                    <div class="row">
+                        <div class="col s9 m11">
+                            <i class="material-icons">assistant_photo</i>
+                            <div class="truncate">
+                                {{ todoObj.title }}
+                            </div>
+                        </div>
+                        <div class="col s3 m1 right-align">
+                            <input type="checkbox" id="{{ $index }}" ng-checked="todoObj.status" ng-click="TD.chengeStatus($index)"/>
+                            <label for="{{ $index }}">&nbsp;</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="collapsible-body {{ TD.getTodoColor(todoObj.status) }}">
+                    <span>
+                        <div class="row valign-wrapper">
+                            <div class="col s8 m10">
+                                <h3 class="truncate">{{ todoObj.title }}</h3>
+                                <blockquote>
+                                  {{ todoObj.title }}
+                                </blockquote>
+                            </div>
+                            <div class="col s2 m1 valign">
+                                <i style="font-size: 40px" class="material-icons" ng-click="TD.editTodo($index, TD.openModalCallback())">mode_edit</i>
+                            </div>
+                            <div class="col s2 m1 valign">
+                                <i style="font-size: 40px" class="material-icons" ng-click="TD.removeTodo($index)">delete</i>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p class="flow-text">
+                                {{ todoObj.description }}
+                            </p>
+                        </div>
+                    </span>
+                </div>
+              </li>
+
+          </ul>
+
+        <!-- Modal Structure -->
+        <div id="modal12" class="modal">
+            <div class="modal-content">
+                <h3>Edit Todo</h3>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Type some text." id="edit_first_name" type="text" class="validate" ng-model="modalTodoData.title">
+                        <label for="first_name">Title</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <textarea id="textarea2" placeholder="Type your description." class="materialize-textarea" ng-model="modalTodoData.description"></textarea>
+                        <label for="textarea2">Textarea</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="modal-action modal-close waves-effect waves-green btn-flat" ng-click="TD.saveTodo(modalTodoData.arrayIndex)">Agree</a>
+                <a class="modal-action modal-close waves-effect waves-green btn-flat" ng-click="TD.closeModalCallback()">Cancel</a>
+            </div>
+        </div>
+
+
+
+        </div>
+
+
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+        // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+        $('.modal').modal();
+        });
+    </script>
+  </body>
+</html>
