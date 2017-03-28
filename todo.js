@@ -1,5 +1,5 @@
 angular.module('todoApp', [])
-  .controller('todoCtrl', function($scope) {
+  .controller('todoCtrl', function($scope, $http) {
       var todoList = this;
 
       $scope.newTodo = {
@@ -19,20 +19,23 @@ angular.module('todoApp', [])
               title: "todo list 1",
               description: "Hello This is first todo.",
               status: 0
-          },
-          {
-              id: 2,
-              title: "todo list 2",
-              description: "Hello This is secound todo.",
-              status: 0
-          },
-          {
-              id: 3,
-              title: "todo list 3",
-              description: "Hello This is third todo.",
-              status: 1
           }
       ];
+
+      //connect with API
+      todoList.fetchData = () => {
+
+          $http({
+              method: 'GET',
+              url: 'https://frozen-beach-23954.herokuapp.com/todos/'
+          })
+          .then((response) => {
+              console.log(response);
+          }, (error) => {
+              console.log(error);
+          });
+          alert('ggg');
+      }
 
       todoList.addTodo = () => {
           var todoObj = {
@@ -80,6 +83,7 @@ angular.module('todoApp', [])
       };
 
       todoList.chengeStatus = (index) => {
+          todoList.fetchData();
           if ($scope.todoArray[index].status == 1) {
               $scope.todoArray[index].status = 0;
           }else{
