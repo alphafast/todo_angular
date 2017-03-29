@@ -13,29 +13,38 @@ angular.module('todoApp', [])
           description: ""
       };
 
-      $scope.todoArray = [
-          {
-              id: 1,
-              title: "todo list 1",
-              description: "Hello This is first todo.",
-              status: 0
-          }
-      ];
+      $scope.todoArray = [];
 
       //connect with API
-      todoList.fetchData = () => {
+      todoList.fetchData = (callback) => {
+            $http({
+                method: 'GET',
+                url: 'https://frozen-beach-23954.herokuapp.com/todos'
+            }).then((response) => {
+                console.log(response);
+                if (callback) {
+                    callback(response.data);
+                }
+            }, (error) => {
+                console.log(error);
+            });
 
-          $http({
-              method: 'GET',
-              url: 'https://frozen-beach-23954.herokuapp.com/todos/'
-          })
-          .then((response) => {
-              console.log(response);
-          }, (error) => {
-              console.log(error);
-          });
-          alert('ggg');
       }
+
+      todoList.fetchData((data) => {
+          $scope.todoArray = [];
+          for (var i = 0; i < data.todos.length; i++) {
+              var temp = data.todos[i];
+              var tempObj = {
+                  title: temp.title,
+                  description: temp.text,
+                  status: temp.completed,
+                  completedAt: temp.completedAt,
+                  id: temp._id
+              };
+              $scope.todoArray.push(tempObj);
+          }
+      });
 
       todoList.addTodo = () => {
           var todoObj = {
@@ -48,6 +57,8 @@ angular.module('todoApp', [])
           $scope.todoArray.push(todoObj);
           todoList.clearNewTodoForm();
       };
+
+
 
       todoList.removeTodo = (index) => {
           if (index > -1) {
