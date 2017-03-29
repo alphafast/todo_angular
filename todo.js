@@ -15,6 +15,9 @@ angular.module('todoApp', [])
           description: ""
       };
 
+      $scope.onLoadPending = false;
+      $scope.currentTab = "todo";
+
       $scope.todoArray = [];
 
       //initial function
@@ -23,12 +26,13 @@ angular.module('todoApp', [])
       }
 
       //connect with API
-      todoList.fetchData = (errorCallback, resultCallback) => {
+      todoList.fetchData = (callback) => {
             $http({
                 method: 'GET',
                 url: 'https://frozen-beach-23954.herokuapp.com/todos'
             }).then((response) => {
                 var data = response.data;
+                var arrayTemp = [];
                 console.log(response);
                 $scope.todoArray = [];
                 for (var i = 0; i < data.todos.length; i++) {
@@ -40,15 +44,37 @@ angular.module('todoApp', [])
                         completedAt: temp.completedAt,
                         id: temp._id
                     };
-                    $scope.todoArray.push(tempObj);
+                    arrayTemp.push(tempObj);
                 }
-                if (resultCallback) {
-                  resultCallback(response);
+                if (callback) {
+                  callback(arrayTemp, undefined);
+                }else{
+                    if ($scope.currentTab == "todo") {
+                        $scope.todoArray = arrayTemp;
+                    }else if ($scope.currentTab == "completed") {
+                        var completeArrayTemp = [];
+                        for (var i = 0; i < data.todos.length; i++) {
+                            var completeTemp = data.todos[i];
+                            if (completeTemp.completed == true) {
+                                var completeTempObj = {
+                                    title: completeTemp.title,
+                                    description: completeTemp.text,
+                                    completed: completeTemp.completed,
+                                    completedAt: completeTemp.completedAt,
+                                    id: completeTemp._id
+                                };
+                                completeArrayTemp.push(completeTempObj);
+                            }
+                        }
+                        $scope.todoArray = completeArrayTemp;
+                    }else{
+                        $scope.todoArray = arrayTemp;
+                    }
                 }
             }, (error) => {
                 console.log(error);
-                if (errorCallback) {
-                  errorCallback(error);
+                if (callback) {
+                  callback(undefined, error);
                 }
             });
       }
@@ -64,10 +90,13 @@ angular.module('todoApp', [])
           }).then((response) => {
               console.log(response);
               if (callback) {
-                  callback(response.data);
+                  callback(response.data, undefined);
               }
           }, (error) => {
               console.log(error);
+              if (callback) {
+                  callback(undefined, error);
+              }
           });
       }
 
@@ -82,10 +111,13 @@ angular.module('todoApp', [])
         }).then((response) => {
             console.log(response);
             if (callback) {
-                callback(response.data);
+                callback(response.data, undefined);
             }
         }, (error) => {
             console.log(error);
+            if (callback) {
+                callback(undefined, error);
+            }
         });
       }
 
@@ -100,10 +132,13 @@ angular.module('todoApp', [])
         }).then((response) => {
             console.log(response);
             if (callback) {
-                callback(response.data);
+                callback(response.data, undefined);
             }
         }, (error) => {
             console.log(error);
+            if (callback) {
+                callback(undefined, error);
+            }
         });
       }
 
@@ -115,17 +150,29 @@ angular.module('todoApp', [])
         }).then((response) => {
             console.log(response);
             if (callback) {
-                callback(response.data);
+                callback(response.data, undefined);
             }
         }, (error) => {
             console.log(error);
+            if (callback) {
+                callback(undefined, error);
+            }
         });
       }
 
 
       // onpageload function
-      todoList.fetchData();
-      todoList.todoToast('Welcome to Todo List.');
+      $scope.onLoadPending = true;
+      todoList.fetchData((result, err) => {
+          if (result) {
+              $scope.todoArray = result;
+              $scope.onLoadPending = false;
+              todoList.todoToast('Welcome to Todo List.');
+          }else{
+              $scope.onLoadPending = false;
+              todoList.todoToast('Something wrong happened, Please try again.');
+          }
+      });
 
 
       //angular function
@@ -135,18 +182,28 @@ angular.module('todoApp', [])
               description: $scope.newTodo.describetion,
           }
           $scope.todoArray.push(todoObj);
-          todoList.addData(todoObj, () => {
-            todoList.clearNewTodoForm();
-            todoList.fetchData();
-            todoList.todoToast('Todo was added.');
+          todoList.addData(todoObj, (result, err) => {
+              if (result) {
+                  todoList.clearNewTodoForm();
+                  todoList.fetchData();
+                  todoList.todoToast(`Todo "${result.title}" was added.`);
+              }else{
+                  todoList.todoToast('Cannot add todo now, Please try agian later.');
+              }
           })
       };
 
       todoList.removeTodo = (index) => {
           if (index > -1) {
-            todoList.removeData($scope.todoArray[index], () => {
-              todoList.fetchData();
-              todoList.todoToast('Todo was removed.');
+            var todoRemovedTitile = $scope.todoArray[index].title;
+            todoList.removeData($scope.todoArray[index], (result, err) => {
+                if (result) {
+                    console.log(result);
+                    todoList.fetchData();
+                    todoList.todoToast(`Todo "${todoRemovedTitile}" was removed.`);
+                }else{
+                    todoList.todoToast('Cannot remove todo now, Please try agian later.');
+                }
             });
           }
       };
@@ -162,11 +219,45 @@ angular.module('todoApp', [])
           $scope.todoArray[index].title = $scope.modalTodoData.title;
           $scope.todoArray[index].description = $scope.modalTodoData.description;
 
-          todoList.editData($scope.todoArray[index], () => {
-            todoList.fetchData();
-            todoList.todoToast('Todo was edited.');
+          todoList.editData($scope.todoArray[index], (result, err) => {
+              if (result) {
+                  todoList.fetchData();
+                  todoList.todoToast(`Todo "${result.todo.title}" was edited.`);
+              }else{
+                  todoList.todoToast('Cannot edit todo now, Please try agian later.');
+              }
           });
       };
+
+      todoList.chengeStatus = (index) => {
+          if ($scope.todoArray[index].completed == true) {
+              $scope.todoArray[index].completed = false;
+          }else{
+              $scope.todoArray[index].completed = true;
+          }
+          todoList.setCompleteData($scope.todoArray[index], (result, err) => {
+              if (result) {
+                  todoList.fetchData();
+                  if (result.todo.completed == true) {
+                      todoList.todoToast(`Todo "${result.todo.title}" was completed.`);
+                  }else{
+                      todoList.todoToast(`Todo "${result.todo.title}" was incompleted.`);
+                  }
+              }else{
+                  todoList.todoToast('Cannot connect to Api, Please try agian later.');
+              }
+          });
+      };
+
+      todoList.setTab = (tabName) => {
+          if (tabName == "todo") {
+              $scope.currentTab = "todo";
+              todoList.fetchData();
+          }else if (tabName == "completed") {
+              $scope.currentTab = "completed";
+              todoList.fetchData();
+          }
+      }
 
 
       //View function
@@ -183,18 +274,6 @@ angular.module('todoApp', [])
           }else{
               return "";
           }
-      };
-
-      todoList.chengeStatus = (index) => {
-          if ($scope.todoArray[index].completed == true) {
-              $scope.todoArray[index].completed = false;
-          }else{
-              $scope.todoArray[index].completed = true;
-          }
-          todoList.setCompleteData($scope.todoArray[index], () => {
-            todoList.fetchData();
-            todoList.todoToast('Todo was completed.');
-          });
       };
 
       todoList.openModalCallback = () => {

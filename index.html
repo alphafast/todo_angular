@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
-<body>
+<body ng-controller="todoCtrl as TD">
     <nav class="nav-extended">
         <div class="nav-wrapper">
             <a href="#" class="brand-logo">Todo</a>
@@ -31,13 +31,13 @@
         </div>
         <div class="nav-content">
             <ul class="tabs tabs-transparent">
-                <li class="tab"><a href="#test1">TO DO</a></li>
-                <li class="tab"><a class="active" href="#test2">Completed</a></li>
+                <li class="tab"><a class="active" ng-click="TD.setTab('todo')" href="#test1">TO DO</a></li>
+                <li class="tab"><a ng-click="TD.setTab('completed')" href="#test2">Completed</a></li>
             </ul>
         </div>
     </nav>
 
-    <div class="container" ng-controller="todoCtrl as TD">
+    <div class="container">
         <!-- Page Content goes here -->
         <br>
         <ul class="collapsible" data-collapsible="accordion">
@@ -110,6 +110,20 @@
             </li>
 
         </ul>
+
+        <div ng-if="TD.onLoadPending" class="center-align">
+            <div class="preloader-wrapper active">
+              <div class="spinner-layer spinner-red-only">
+                <div class="circle-clipper left">
+                  <div class="circle"></div>
+                </div><div class="gap-patch">
+                  <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                  <div class="circle"></div>
+                </div>
+              </div>
+            </div>
+        </div>
 
         <!-- Modal Structure -->
         <div id="modal12" class="modal">
