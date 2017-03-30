@@ -178,7 +178,7 @@ angular.module('todoApp', [])
       //angular function
       todoList.addTodo = () => {
           if ($scope.newTodo.description == "" || $scope.newTodo.title == "") {
-              todoList.todoToast('Please fulfill title and description, Please try agian.');
+              todoList.todoToast('Please fulfill title and description, Try agian.');
           }else{
               var todoObj = {
                   title: $scope.newTodo.title,
