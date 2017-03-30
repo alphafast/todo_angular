@@ -177,20 +177,24 @@ angular.module('todoApp', [])
 
       //angular function
       todoList.addTodo = () => {
-          var todoObj = {
-              title: $scope.newTodo.title,
-              description: $scope.newTodo.describetion,
-          }
-          $scope.todoArray.push(todoObj);
-          todoList.addData(todoObj, (result, err) => {
-              if (result) {
-                  todoList.clearNewTodoForm();
-                  todoList.fetchData();
-                  todoList.todoToast(`Todo "${result.title}" was added.`);
-              }else{
-                  todoList.todoToast('Cannot add todo now, Please try agian later.');
+          if ($scope.newTodo.description == "" || $scope.newTodo.title == "") {
+              todoList.todoToast('Please fulfill title and description, Please try agian.');
+          }else{
+              var todoObj = {
+                  title: $scope.newTodo.title,
+                  description: $scope.newTodo.description,
               }
-          })
+              //$scope.todoArray.push(todoObj);
+              todoList.addData(todoObj, (result, err) => {
+                  if (result) {
+                      todoList.clearNewTodoForm();
+                      todoList.fetchData();
+                      todoList.todoToast(`Todo "${result.title}" was added.`);
+                  }else{
+                      todoList.todoToast('Cannot add todo now, Please try agian later.');
+                  }
+              });
+          }
       };
 
       todoList.removeTodo = (index) => {
